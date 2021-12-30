@@ -1,25 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import Tours from "./Tours";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const [loading, setLoading] = useState(true);
+  const [tours, setTours] = useState([]);
+
+  const removeTour = (id) => {
+    const newTours = tours.filter((tour) => tour.id !== id);
+    setTours(newTours);
+  };
+
+  const fetchTours = async () => {
+    try {
+      const resp = await fetch("https://course-api.com/react-tours-project");
+      const data = await resp.json();
+      setTours(data);
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+      console.log(err);
+    }
+  };
+  useEffect(() => {
+    fetchTours();
+  }, []);
+  console.log(tours);
+  if (loading) {
+    return (
+      <main style={{ textAlign: "center" }}>
+        <h2>Loading ...</h2>
+      </main>
+    );
+  }
+  if (tours.length === 0) {
+    return (
+      <main style={{ textAlign: "center" }}>
+        <h2>No Tours Left</h2>
+        <button className="btn" onClick={fetchTours}>
+          Refresh
+        </button>
+      </main>
+    );
+  }
+
+  return <Tours tours={tours} removeTour={removeTour} />;
 }
 
 export default App;
